@@ -1,0 +1,165 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Users Information</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="/request.js"></script>
+</head>
+<body>
+<div class="row">
+    <div class="col-sm-4">
+        <div class="container" style="margin-top:20px">
+            <h2 style="margin-left:100px">Add New User</h2>
+            <form class="form-horizontal" id="formUser" name="formUser">
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="firstName">Enter Your First Name:</label>
+                    <div class="col-sm-10">
+                        <input type="text" placeholder="Enter first name" id="firstName"
+                               class="form-control mb-4 col-4" style="width:200px" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="lastName">Enter Your Last Name:</label>
+                    <div class="col-sm-10">
+                        <input type="text" placeholder="Enter last name" id="lastName"
+                               class="form-control mb-4 col-4"
+                               style="width:200px" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="emailId">Enter Email Id:</label>
+                    <div class="col-sm-10">
+                        <input type="email" placeholder="example@gmail.com" id="emailId"
+                               class="form-control mb-4 col-4"
+                               style="width:200px" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="phoneNo">Enter Phone No:</label>
+                    <div class="col-sm-10">
+                        <input type="tel" placeholder="1234567890" id="phoneNo" class="form-control mb-4 col-4"
+                               style="width:200px" pattern="[0-9]{10}" maxlength="10" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Select Country:</label>
+                    <div class="col-sm-10">
+                        <select class="form-control mb-4 col-4" style="width:200px" id="countries">
+                            <option value='-1'>SELECT</option>
+                            <option th:each="ob:${countries}" th:text="${ob.countryName}"
+                                    th:value="${ob.countryName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Select State:</label>
+                    <div class="col-sm-10">
+                        <select class="form-control mb-4 col-4" style="width:200px" id="states">
+                            <option value='stateName'>SELECT</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Select City:</label>
+                    <div class="col-sm-10">
+                        <select class="form-control mb-4 col-4" style="width:200px" id="cities">
+                            <option value='cityName'>SELECT</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-info col-2" style="margin-left:130px">Save User</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-sm-8">
+        <div class="container">
+            <h2>User List</h2>
+            <table class="table table-bordered" style="margin-top:20px">
+                <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email Id</th>
+                    <th>Mobile No</th>
+                    <th>Country</th>
+                    <th>State</th>
+                    <th>City</th>
+                </tr>
+                </thead>
+                <!--                <div id="loader"></div>-->
+                <!--                <div style="display:none;" id="myDiv" class="animate-bottom">-->
+                <tbody id="tableUser">
+
+                <!--                <tr th:each="user:${listUsers}">-->
+                <!--                    <td th:text="${user.firstName}"></td>-->
+                <!--                    <td th:text="${user.lastName}"></td>-->
+                <!--                    <td th:text="${user.emailId}"></td>-->
+                <!--                    <td th:text="${user.phoneNo}"></td>-->
+                <!--                    <td>-->
+                <!--                        <a th:href="@{/showFormForUpdate/{email_id}(email_id=${user.emailId})}">-->
+                <!--                            <button type="button" class="btn btn-primary">Edit</button>-->
+                <!--                        </a>-->
+                <!--                        <a th:href="@{/deleteUser/{email_id}(email_id=${user.emailId})}">-->
+                <!--                            <button type="button" class="btn btn-danger">Delete</button>-->
+                <!--                        </a>-->
+                <!--                    </td>-->
+                <!--                </tr>-->
+                </tbody>
+                <!--                </div>-->
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#countries').change(function () {
+            //var countryId = $(this).val();
+            var country_name = $(this).val();
+            var s = '<option value=' + -1 + '>SELECT</option>';
+            if (country_name != null) {
+                $.ajax({
+                    type: 'GET',
+                    //url: '/getStates/' + countryId,
+                    url: '/getStates/' + country_name,
+                    success: function (result) {
+                        console.log('response', result)
+                        var result = JSON.parse(result);
+                        for (var i = 0; i < result.length; i++) {
+                            s += '<option value="' + result[i].state_name + '">' + result[i].state_name + '</option>';
+                        }
+                        $('#states').html(s);
+                    }
+                });
+            }
+            //reset data
+            $('#states').html(s);
+            $('#cities').html(s);
+
+        });
+
+        $('#states').change(function () {
+            var state_name = $(this).val();
+            var s = '<option value=' + -1 + '>SELECT</option>';
+            if (state_name != null) {
+                $.ajax({
+                    url: '/getCities/' + state_name,
+                    success: function (result) {
+                        var result = JSON.parse(result);
+                        for (var i = 0; i < result.length; i++) {
+                            s += '<option value="' + result[i].city_name + '">' + result[i].city_name + '</option>';
+                        }
+                        $('#cities').html(s);
+                    }
+                });
+            }
+            //reset data
+            $('#cities').html(s);
+        });
+    });
+</script>
+</html>
